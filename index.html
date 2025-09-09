@@ -1,85 +1,128 @@
 <!DOCTYPE html>
-}
-</style>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manga Artists Dashboard</title>
+  <style>
+    body {font-family: Arial, sans-serif; margin:0; background:#101010; color:#eee;}
+    header {background:#202020; padding:20px; text-align:center;}
+    header h1 {margin:0; color:#ffcc00;}
+    .filters {padding:15px; text-align:center; background:#181818;}
+    input, select {margin:5px; padding:8px; border-radius:5px; border:1px solid #333;}
+    .grid {display:flex; flex-wrap:wrap; gap:20px; justify-content:center; padding:20px;}
+    .card {background:#1c1c1c; border:1px solid #333; border-radius:10px; width:270px; padding:15px; transition:0.2s;}
+    .card:hover {transform:scale(1.03);}
+    .card h3 {margin:0 0 10px; color:#ffcc00;}
+    .meta {font-size:13px; color:#aaa;}
+    .works {margin-top:10px; font-size:14px;}
+    .works div {margin:4px 0; padding:5px; background:#252525; border-radius:5px;}
+    .btn {margin-top:10px; padding:6px 10px; background:#333; border:none; color:#fff; border-radius:5px; cursor:pointer;}
+    .btn:hover {background:#555;}
+  </style>
 </head>
 <body>
+
 <header>
-<h1>Manga Artists & Collections</h1>
+  <h1>Manga Artists Dashboard</h1>
+  <p>Explore artists and their works in people’s collections</p>
 </header>
 
-
-<div class="search-bar">
-<input type="text" id="search" placeholder="Search artists or collections...">
+<div class="filters">
+  <input type="text" id="search" placeholder="Search artist or work...">
+  <select id="genreFilter"><option value="">All Genres</option></select>
+  <select id="countryFilter"><option value="">All Countries</option></select>
 </div>
 
-
-<div class="container" id="artistContainer">
-<!-- Cards will be inserted here by JS -->
-</div>
-
+<div id="cards" class="grid"></div>
 
 <script>
 const artists = [
-{
-name: "Eiichiro Oda",
-collections: ["One Piece"]
-},
-{
-name: "Masashi Kishimoto",
-collections: ["Naruto", "Samurai 8"]
-},
-{
-name: "Akira Toriyama",
-collections: ["Dragon Ball", "Dr. Slump"]
-},
-{
-name: "Rumiko Takahashi",
-collections: ["Inuyasha", "Ranma ½", "Urusei Yatsura"]
-},
-{
-name: "Hajime Isayama",
-collections: ["Attack on Titan"]
-},
-{
-name: "Naoko Takeuchi",
-collections: ["Sailor Moon"]
-}
+  {
+    name: "Eiichiro Oda",
+    country: "Japan",
+    debut: 1992,
+    genres: ["Adventure","Shounen"],
+    works: [
+      {title:"One Piece", volumes:100, copies:500, collectors:420, status:"Ongoing"}
+    ]
+  },
+  {
+    name: "Masashi Kishimoto",
+    country: "Japan",
+    debut: 1995,
+    genres: ["Action","Ninja"],
+    works: [
+      {title:"Naruto", volumes:72, copies:250, collectors:380, status:"Completed"},
+      {title:"Boruto", volumes:20, copies:30, collectors:160, status:"Ongoing"}
+    ]
+  },
+  {
+    name: "Hiromu Arakawa",
+    country: "Japan",
+    debut: 1999,
+    genres: ["Fantasy","Drama"],
+    works: [
+      {title:"Fullmetal Alchemist", volumes:27, copies:80, collectors:240, status:"Completed"}
+    ]
+  }
 ];
 
-
-const container = document.getElementById("artistContainer");
-
-
-function displayArtists(list) {
-container.innerHTML = "";
-list.forEach(artist => {
-const card = document.createElement("div");
-card.className = "card";
-card.innerHTML = `
-<h2>${artist.name}</h2>
-<h4>Collections:</h4>
-<ul class="collection">
-${artist.collections.map(c => <li>${c}</li>).join("")}
-</ul>
-`;
-container.appendChild(card);
-});
+// Populate filters
+function populateFilters() {
+  const genres = new Set(), countries = new Set();
+  artists.forEach(a=>{
+    a.genres.forEach(g=>genres.add(g));
+    countries.add(a.country);
+  });
+  genres.forEach(g=> document.getElementById("genreFilter").innerHTML += `<option>${g}</option>`);
+  countries.forEach(c=> document.getElementById("countryFilter").innerHTML += `<option>${c}</option>`);
 }
 
+// Render artist cards
+function renderCards(list) {
+  const host = document.getElementById("cards");
+  host.innerHTML = "";
+  list.forEach(a=>{
+    const totalCopies = a.works.reduce((s,w)=>s+w.copies,0);
+    const totalCollectors = a.works.reduce((s,w)=>s+w.collectors,0);
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>${a.name}</h3>
+      <div class="meta">Country: ${a.country} | Debut: ${a.debut}</div>
+      <div class="meta">Genres: ${a.genres.join(", ")}</div>
+      <div class="meta">Total Copies: ${totalCopies}M</div>
+      <div class="meta">Collectors: ${totalCollectors}</div>
+      <div class="works">
+        <b>Works:</b>
+        ${a.works.map(w=>`<div>${w.title} (${w.status}) - ${w.volumes} vols, ${w.copies}M copies, ${w.collectors} collectors</div>`).join("")}
+      </div>
+    `;
+    host.appendChild(card);
+  });
+}
 
-// Initial display
-displayArtists(artists);
+// Apply filters
+function applyFilters() {
+  let list = artists;
+  const q = document.getElementById("search").value.toLowerCase();
+  const genre = document.getElementById("genreFilter").value;
+  const country = document.getElementById("countryFilter").value;
 
+  if(q) list = list.filter(a=>a.name.toLowerCase().includes(q) || a.works.some(w=>w.title.toLowerCase().includes(q)));
+  if(genre) list = list.filter(a=>a.genres.includes(genre) || a.works.some(w=>w.genre===genre));
+  if(country) list = list.filter(a=>a.country===country);
 
-// Search functionality
-document.getElementById("search").addEventListener("input", function(e) {
-const query = e.target.value.toLowerCase();
-const filtered = artists.filter(a =>
-a.name.toLowerCase().includes(query) ||
-a.collections.some(c => c.toLowerCase().includes(query))
-);
-displayArtists(filtered);
-});
+  renderCards(list);
+}
+
+document.getElementById("search").addEventListener("input", applyFilters);
+document.getElementById("genreFilter").addEventListener("change", applyFilters);
+document.getElementById("countryFilter").addEventListener("change", applyFilters);
+
+populateFilters();
+renderCards(artists);
 </script>
+
 </body>
 </html>
