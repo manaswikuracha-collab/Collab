@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Manga Artists & Collections</h1>
+</header>
+
+
+<div class="search-bar">
+<input type="text" id="search" placeholder="Search artists or collections...">
+</div>
+
+
+<div class="container" id="artistContainer">
+<!-- Cards will be inserted here by JS -->
+</div>
+
+
+<script>
+const artists = [
+{
+name: "Eiichiro Oda",
+collections: ["One Piece"]
+},
+{
+name: "Masashi Kishimoto",
+collections: ["Naruto", "Samurai 8"]
+},
+{
+name: "Akira Toriyama",
+collections: ["Dragon Ball", "Dr. Slump"]
+},
+{
+name: "Rumiko Takahashi",
+collections: ["Inuyasha", "Ranma ½", "Urusei Yatsura"]
+},
+{
+name: "Hajime Isayama",
+collections: ["Attack on Titan"]
+},
+{
+name: "Naoko Takeuchi",
+collections: ["Sailor Moon"]
+}
+];
+
+
+const container = document.getElementById("artistContainer");
+
+
+function displayArtists(list) {
+container.innerHTML = "";
+list.forEach(artist => {
+const card = document.createElement("div");
+card.className = "card";
+card.innerHTML = `
+<h2>${artist.name}</h2>
+<h4>Collections:</h4>
+<ul class="collection">
+${artist.collections.map(c => <li>${c}</li>).join("")}
+</ul>
+`;
+container.appendChild(card);
+});
+}
+
+
+// Initial display
+displayArtists(artists);
+
+
+// Search functionality
+document.getElementById("search").addEventListener("input", function(e) {
+const query = e.target.value.toLowerCase();
+const filtered = artists.filter(a =>
+a.name.toLowerCase().includes(query) ||
+a.collections.some(c => c.toLowerCase().includes(query))
+);
+displayArtists(filtered);
+});
+</script>
+</body>
+</html>
