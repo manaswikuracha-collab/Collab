@@ -2,101 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Manga Artists Dashboard</title>
+  <title>Film Genres Dashboard</title>
   <style>
-    body {font-family: Arial, sans-serif; margin:0; background:#101010; color:#eee;}
-    header {background:#202020; padding:20px; text-align:center;}
+    body {font-family: Arial, sans-serif; margin:0; background:#111; color:#eee;}
+    header {background:#222; padding:20px; text-align:center;}
     header h1 {margin:0; color:#ffcc00;}
-    .filters {padding:15px; text-align:center; background:#181818;}
+    .filters {background:#181818; padding:15px; text-align:center;}
     input, select {margin:5px; padding:8px; border-radius:5px; border:1px solid #333;}
     .grid {display:flex; flex-wrap:wrap; gap:20px; justify-content:center; padding:20px;}
-    .card {background:#1c1c1c; border:1px solid #333; border-radius:10px; width:270px; padding:15px; transition:0.2s;}
+    .card {background:#1c1c1c; border:1px solid #333; border-radius:10px; width:280px; padding:15px; transition:0.2s;}
     .card:hover {transform:scale(1.03);}
+    .card img {width:100%; border-radius:8px; margin-bottom:10px;}
     .card h3 {margin:0 0 10px; color:#ffcc00;}
     .meta {font-size:13px; color:#aaa;}
-    .works {margin-top:10px; font-size:14px;}
-    .works div {margin:4px 0; padding:5px; background:#252525; border-radius:5px;}
-    .btn {margin-top:10px; padding:6px 10px; background:#333; border:none; color:#fff; border-radius:5px; cursor:pointer;}
-    .btn:hover {background:#555;}
+    .desc {margin-top:8px; font-size:14px;}
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Manga Artists Dashboard</h1>
-  <p>Explore artists and their works in people’s collections</p>
+  <h1>Film Genres Dashboard</h1>
+  <p>Explore different genres with posters and information</p>
 </header>
 
 <div class="filters">
-  <input type="text" id="search" placeholder="Search artist or work...">
-  <select id="genreFilter"><option value="">All Genres</option></select>
+  <input type="text" id="search" placeholder="Search by genre or movie...">
   <select id="countryFilter"><option value="">All Countries</option></select>
 </div>
 
 <div id="cards" class="grid"></div>
 
 <script>
-const artists = [
+const genres = [
   {
-    name: "Eiichiro Oda",
-    country: "Japan",
-    debut: 1992,
-    genres: ["Adventure","Shounen"],
-    works: [
-      {title:"One Piece", volumes:100, copies:500, collectors:420, status:"Ongoing"}
-    ]
+    genre: "Action",
+    country: "USA",
+    movie: "Mad Max: Fury Road",
+    year: 2015,
+    poster: "https://upload.wikimedia.org/wikipedia/en/6/6e/Mad_Max_Fury_Road.jpg",
+    description: "High-octane chases, explosions, and survival in a post-apocalyptic desert."
   },
   {
-    name: "Masashi Kishimoto",
-    country: "Japan",
-    debut: 1995,
-    genres: ["Action","Ninja"],
-    works: [
-      {title:"Naruto", volumes:72, copies:250, collectors:380, status:"Completed"},
-      {title:"Boruto", volumes:20, copies:30, collectors:160, status:"Ongoing"}
-    ]
+    genre: "Romance",
+    country: "UK",
+    movie: "Pride & Prejudice",
+    year: 2005,
+    poster: "https://upload.wikimedia.org/wikipedia/en/0/03/Prideandprejudiceposter.jpg",
+    description: "A timeless love story set in 19th-century England."
   },
   {
-    name: "Hiromu Arakawa",
+    genre: "Sci-Fi",
+    country: "USA",
+    movie: "Interstellar",
+    year: 2014,
+    poster: "https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg",
+    description: "An epic journey through space and time to save humanity."
+  },
+  {
+    genre: "Animation",
     country: "Japan",
-    debut: 1999,
-    genres: ["Fantasy","Drama"],
-    works: [
-      {title:"Fullmetal Alchemist", volumes:27, copies:80, collectors:240, status:"Completed"}
-    ]
+    movie: "Spirited Away",
+    year: 2001,
+    poster: "https://upload.wikimedia.org/wikipedia/en/3/30/Spirited_Away_poster.JPG",
+    description: "A young girl enters a magical world filled with spirits and strange creatures."
+  },
+  {
+    genre: "Horror",
+    country: "USA",
+    movie: "The Conjuring",
+    year: 2013,
+    poster: "https://upload.wikimedia.org/wikipedia/en/1/1f/Conjuring_poster.jpg",
+    description: "Based on true events, paranormal investigators tackle a haunted farmhouse."
   }
 ];
 
-// Populate filters
+// Populate country filter
 function populateFilters() {
-  const genres = new Set(), countries = new Set();
-  artists.forEach(a=>{
-    a.genres.forEach(g=>genres.add(g));
-    countries.add(a.country);
-  });
-  genres.forEach(g=> document.getElementById("genreFilter").innerHTML += `<option>${g}</option>`);
+  const countries = new Set(genres.map(g=>g.country));
   countries.forEach(c=> document.getElementById("countryFilter").innerHTML += `<option>${c}</option>`);
 }
 
-// Render artist cards
+// Render cards
 function renderCards(list) {
   const host = document.getElementById("cards");
   host.innerHTML = "";
-  list.forEach(a=>{
-    const totalCopies = a.works.reduce((s,w)=>s+w.copies,0);
-    const totalCollectors = a.works.reduce((s,w)=>s+w.collectors,0);
+  list.forEach(g=>{
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      <h3>${a.name}</h3>
-      <div class="meta">Country: ${a.country} | Debut: ${a.debut}</div>
-      <div class="meta">Genres: ${a.genres.join(", ")}</div>
-      <div class="meta">Total Copies: ${totalCopies}M</div>
-      <div class="meta">Collectors: ${totalCollectors}</div>
-      <div class="works">
-        <b>Works:</b>
-        ${a.works.map(w=>`<div>${w.title} (${w.status}) - ${w.volumes} vols, ${w.copies}M copies, ${w.collectors} collectors</div>`).join("")}
-      </div>
+      <img src="${g.poster}" alt="${g.movie} poster">
+      <h3>${g.genre}</h3>
+      <div class="meta"><b>Movie:</b> ${g.movie} (${g.year})</div>
+      <div class="meta"><b>Country:</b> ${g.country}</div>
+      <div class="desc">${g.description}</div>
     `;
     host.appendChild(card);
   });
@@ -104,24 +102,21 @@ function renderCards(list) {
 
 // Apply filters
 function applyFilters() {
-  let list = artists;
+  let list = genres;
   const q = document.getElementById("search").value.toLowerCase();
-  const genre = document.getElementById("genreFilter").value;
   const country = document.getElementById("countryFilter").value;
 
-  if(q) list = list.filter(a=>a.name.toLowerCase().includes(q) || a.works.some(w=>w.title.toLowerCase().includes(q)));
-  if(genre) list = list.filter(a=>a.genres.includes(genre) || a.works.some(w=>w.genre===genre));
-  if(country) list = list.filter(a=>a.country===country);
+  if(q) list = list.filter(g=>g.genre.toLowerCase().includes(q) || g.movie.toLowerCase().includes(q));
+  if(country) list = list.filter(g=>g.country===country);
 
   renderCards(list);
 }
 
 document.getElementById("search").addEventListener("input", applyFilters);
-document.getElementById("genreFilter").addEventListener("change", applyFilters);
 document.getElementById("countryFilter").addEventListener("change", applyFilters);
 
 populateFilters();
-renderCards(artists);
+renderCards(genres);
 </script>
 
 </body>
